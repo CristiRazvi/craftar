@@ -1,17 +1,22 @@
 module Craftar
   class Image < Craftar::Base
-    attr_reader :uuid, :item, :resource_uri, :file, :name, :status, :thumb_120, :thumb_60, :tracking_data_status
+    attr_reader :uuid, :item, :resource_uri, :file, :name, :status, :thumb_120, :thumb_60, :tracking_data_status, :file_from_url
 
     def self.craftar_name
       'image'
     end
 
-    def initialize(opts)
+    def initialize(opts, file_from_url: false)
+      @file_from_url = file_from_url
       set_attributes(opts)
     end
 
     def save
-      response = call(:post, file: prepare_file_from_url(@file), item: item)
+      if @file_from_url
+        @file = prepare_file_from_url(@file)
+      end
+      
+      response = call(:post, file: @file, item: item)
       set_attributes(response)
       self
     end
